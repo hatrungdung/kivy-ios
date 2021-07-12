@@ -1,3 +1,5 @@
+# https://mac.r-project.org/openmp/
+
 from kivy_ios.toolchain import PythonRecipe, shprint
 from os.path import join
 import sh
@@ -26,7 +28,7 @@ class FaissRecipe(PythonRecipe):
     def install(self):
         arch = list(self.filtered_archs)[0]
         build_dir = self.get_build_dir(arch.arch)
-        os.chdir(os.join(build_dir, "build/faiss/python"))
+        os.chdir(join(build_dir, "build/faiss/python"))
         hostpython = sh.Command(self.ctx.hostpython)
         build_env = arch.get_env()
         dest_dir = join(self.ctx.dist_dir, "root", "python3")
