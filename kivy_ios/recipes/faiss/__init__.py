@@ -1,41 +1,37 @@
-import sh
-
+from kivy_ios.toolchain import PythonRecipe, shprint
 from os.path import join
+import sh
+import os
 
-from kivy_ios.toolchain import CythonRecipe, shprint
-from kivy_ios.context_managers import cd
 
+class FaissRecipe(PythonRecipe):
+    version = "v1.7.1"
+    url = "https://github.com/facebookresearch/faiss/archive/refs/tags/{version}.tar.gz"
+    depends = ["python", "numpy"]
+    include_per_arch = True
+    library = "libfaisscpu.a"
+    libraries = [
+        "build/faiss/python/libfaiss.a",
+    ]
 
-class FaissRecipe(CythonRecipe):
-    version = "1.7.1.post2"
-    url = "https://pypi.io/packages/source/f/faiss-cpu/faiss-cpu-{version}.tar.gz"
-    depends = ["python3", "host_setuptools3"]
-    python_depends = ["setuptools"]
-    library = "libfaiss.a"
-    cythonize = False
-
-    def dest_dir(self):
-        return join(self.ctx.dist_dir, "root", "python3")
-
-    def get_netifaces_env(self, arch):
+    def build_arch(self, arch):
         build_env = arch.get_env()
-        build_env["PYTHONPATH"] = self.ctx.site_packages_dir
-        return build_env
+        command = sh.Command(join(self.build_dir, "cmake"))
+        shprint(command, "-B", "build", ".", "-DBUILD_SHARED_LIBS=OFF")
+        command = sh.Command(join(self.build_dir, "make"))
+        shprint(command, "-C", "build", "-j", "faiss")
+        shprint(command, "-C", "build", "-j", "swigfaiss")
+        super(FaissRecipe, self).build_arch(arch)
 
     def install(self):
         arch = list(self.filtered_archs)[0]
         build_dir = self.get_build_dir(arch.arch)
-        build_env = self.get_netifaces_env(arch)
+        os.chdir(os.join(build_dir, "build/faiss/python"))
         hostpython = sh.Command(self.ctx.hostpython)
-        with cd(build_dir):
-            shprint(
-                hostpython,
-                "setup.py",
-                "install",
-                "--prefix",
-                self.dest_dir(),
-                _env=build_env,
-            )
+        build_env = arch.get_env()
+        dest_dir = join(self.ctx.dist_dir, "root", "python3")
+        build_env['PYTHONPATH'] = self.ctx.site_packages_dir
+        shprint(hostpython, "setup.py", "install", "--prefix", dest_dir, _env=build_env)
 
 
 recipe = FaissRecipe()
