@@ -20,7 +20,7 @@ class FaissRecipe(PythonRecipe):
         build_env = arch.get_env()
         build_env['CXXFLAGS'] = build_env.get(
             'CXXFLAGS', ''
-        ) + " -I{self.build_dir}/../../../../../../../../usr/local/include"
+        ) + f" -I{self.build_dir}/../../../../../../../../usr/local/include"
         build_env['LDFLAGS'] = build_env.get(
             'LDFLAGS', ''
         ) + " -L/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS.simruntime/Contents/Resources/RuntimeRoot/System/Library/Frameworks/Accelerate.framework/Frameworks/vecLib.framework -lBLAS -lLAPACK"
