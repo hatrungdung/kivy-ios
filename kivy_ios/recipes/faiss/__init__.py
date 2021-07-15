@@ -1,3 +1,9 @@
+# TODO
+# download openmp to build tree
+# hardcoded version numbers?
+# fix swigfaiss build
+# ....
+
 # brew install swig
 # https://mac.r-project.org/openmp/
 # https://mac.r-project.org/openmp/openmp-96efe90-darwin20-Release.tar.gz
@@ -21,7 +27,7 @@ class FaissRecipe(PythonRecipe):
         build_env = arch.get_env()
         build_env['CXXFLAGS'] = build_env.get(
             'CXXFLAGS', ''
-        ) + f" -std=c++11 -I{self.build_dir}/../../../../../../../../usr/local/include"
+        ) + f" -std=c++11 -I{self.ctx.build_dir}/../../../../../usr/local/include"
         command = sh.Command("cmake")
         shprint(
             command,
@@ -36,12 +42,12 @@ class FaissRecipe(PythonRecipe):
             "-DCMAKE_CXX_COMPILER_ID=AppleClang",
             "-DOpenMP_CXX_FLAGS=-Xclang -fopenmp",
             "-DOpenMP_CXX_LIB_NAMES=omp",
-            f"-DOpenMP_omp_LIBRARY={self.build_dir}/../../../../../../../../usr/local/lib/libomp.dylib",
+            f"-DOpenMP_omp_LIBRARY={self.ctx.build_dir}/../../../../../usr/local/lib/libomp.dylib",
             "-DBLA_VENDOR=Apple",
             f"-DPython_EXECUTABLE={self.ctx.hostpython}",
-            f"-DPython_LIBRARY=/Users/robertsmith/ML/kivy-tensorflow-helloworld/.buildozer/ios/platform/kivy-ios/build/python3/{arch}/Python-3.9.2/libpython3.9.a",
-            "-DPython_INCLUDE_DIR=/Users/robertsmith/ML/kivy-tensorflow-helloworld/.buildozer/ios/platform/kivy-ios/dist/root/python3/include/python3.9/",
-            f"-DPython_NumPy_INCLUDE_DIR=/Users/robertsmith/ML/kivy-deejai/.buildozer/ios/platform/kivy-ios/build/numpy/{arch}/numpy-1.20.2/numpy/core/include",
+            f"-DPython_LIBRARY={join(self.ctx.build_dir, 'python3', arch.arch, 'Python-3.9.2', 'libpython3.9.a')}",
+            f"-DPython_INCLUDE_DIR={join(self.ctx.dist_dir, 'root' , 'python3', 'include', 'python3.9')}",
+            f"-DPython_NumPy_INCLUDE_DIR={join(self.ctx.build_dir, 'numpy', arch.arch, 'numpy-1.20.2', 'numpy', 'core', 'include')}",
             _env=build_env)
         command = sh.Command("make")
         shprint(command, "-C", "build", "-j", "faiss", _env=build_env)
