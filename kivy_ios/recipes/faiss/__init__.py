@@ -29,6 +29,8 @@ class FaissRecipe(PythonRecipe):
             self.download_file(openmp_url, openmp_fn)
         if not exists(join(openmp_dir, 'usr')):
             self.extract_file(openmp_fn, openmp_dir)
+        openmp_lib = join(openmp_dir, 'usr', 'local', 'lib', 'libomp.dylib')
+        openmp_include = join(openmp_dir, 'usr', 'local', 'include')
 
         python_lib = join(self.ctx.build_dir, 'python3', arch.arch,
                           f'Python-{self.ctx.hostpython_recipe.version}',
@@ -37,15 +39,15 @@ class FaissRecipe(PythonRecipe):
                               f'python{self.ctx.python_ver}')
         numpy_dir = join(self.ctx.build_dir, 'numpy', arch.arch,
                          'numpy-1.20.2')  ###
-        numpy_include = join(numpy_dir, 'numpy', 'core', 'include')
-        numpy_include2 = join(numpy_dir, 'build',
+        numpy_include = join(numpy_dir, 'build',
                               'src.macosx-10.15-x86_64-3.9', 'numpy', 'core',
                               'include', 'numpy')
+        numpy_include_dir = join(numpy_dir, 'numpy', 'core', 'include')
 
         build_env = arch.get_env()
         build_env['CXXFLAGS'] = build_env.get(
             'CXXFLAGS', ''
-        ) + f" -Dnil=nil -std=c++11 -I{join(openmp_dir, 'usr', 'local', 'include')} -I{numpy_include2}"
+        ) + f" -Dnil=nil -std=c++11 -I{openmp_include} -I{numpy_include}"
 
         command = sh.Command("cmake")
         shprint(
@@ -61,12 +63,12 @@ class FaissRecipe(PythonRecipe):
             "-DCMAKE_CXX_COMPILER_ID=AppleClang",
             "-DOpenMP_CXX_FLAGS=-Xclang -fopenmp",
             "-DOpenMP_CXX_LIB_NAMES=omp",
-            f"-DOpenMP_omp_LIBRARY={join(openmp_dir, 'usr', 'local', 'lib', 'libomp.dylib')}",
+            f"-DOpenMP_omp_LIBRARY={openmp_lib}",
             "-DBLA_VENDOR=Apple",
             f"-DPython_EXECUTABLE={self.ctx.hostpython}",
             f"-DPython_LIBRARY={python_lib}",
             f"-DPython_INCLUDE_DIR={python_include}",
-            f"-DPython_NumPy_INCLUDE_DIR={numpy_include}",
+            f"-DPython_NumPy_INCLUDE_DIR={numpy_include_dir}",
             _env=build_env)
 
         command = sh.Command("make")
