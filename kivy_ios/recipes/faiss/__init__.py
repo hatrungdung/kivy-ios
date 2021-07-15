@@ -5,11 +5,9 @@
 # ....
 
 # brew install swig
-# https://mac.r-project.org/openmp/
-# https://mac.r-project.org/openmp/openmp-96efe90-darwin20-Release.tar.gz
 
 from kivy_ios.toolchain import PythonRecipe, shprint
-from os.path import join
+from os.path import join, exists
 import sh
 import os
 
@@ -24,10 +22,18 @@ class FaissRecipe(PythonRecipe):
     ]
 
     def build_arch(self, arch):
+        # doiwnload OpenMP library built for arm64 and x86_64
+        openmp_url = 'https://mac.r-project.org/openmp/openmp-96efe90-darwin20-Release.tar.gz'
+        openmp_dir = join(self.ctx.build_dir, 'faiss')
+        openmp_fn = join(openmp_dir, 'openmp-96efe90-darwin20-Release.tar.gz')
+        if not exists(openmp_fn):
+            self.download_file(openmp_url, openmp_fn)
+        if not exists(join(openmp_dir, 'usr')):
+            self.extract_file(openmp_fn, openmp_dir)
         build_env = arch.get_env()
         build_env['CXXFLAGS'] = build_env.get(
             'CXXFLAGS', ''
-        ) + f" -std=c++11 -I{self.ctx.build_dir}/../../../../../usr/local/include"
+        ) + f" -std=c++11 -I{join(openmp_dir, 'usr', 'local', 'include')}"
         command = sh.Command("cmake")
         shprint(
             command,
@@ -42,7 +48,7 @@ class FaissRecipe(PythonRecipe):
             "-DCMAKE_CXX_COMPILER_ID=AppleClang",
             "-DOpenMP_CXX_FLAGS=-Xclang -fopenmp",
             "-DOpenMP_CXX_LIB_NAMES=omp",
-            f"-DOpenMP_omp_LIBRARY={self.ctx.build_dir}/../../../../../usr/local/lib/libomp.dylib",
+            f"-DOpenMP_omp_LIBRARY={join(openmp_dir, 'usr', 'local', 'lib', 'libomp.dylib')}",
             "-DBLA_VENDOR=Apple",
             f"-DPython_EXECUTABLE={self.ctx.hostpython}",
             f"-DPython_LIBRARY={join(self.ctx.build_dir, 'python3', arch.arch, 'Python-3.9.2', 'libpython3.9.a')}",
