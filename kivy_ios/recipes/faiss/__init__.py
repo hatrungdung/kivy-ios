@@ -40,36 +40,36 @@ class FaissRecipe(PythonRecipe):
         numpy_dir = join(self.ctx.build_dir, 'numpy', arch.arch,
                          'numpy-1.20.2')  ###
         numpy_include = join(numpy_dir, 'build',
-                              'src.macosx-10.15-x86_64-3.9', 'numpy', 'core',
-                              'include', 'numpy')
+                             f'src.macosx-10.15-{arch.arch}-3.9', 'numpy',
+                             'core', 'include', 'numpy')
         numpy_include_dir = join(numpy_dir, 'numpy', 'core', 'include')
 
         build_env = arch.get_env()
         build_env['CXXFLAGS'] = build_env.get(
-            'CXXFLAGS', ''
-        ) + f" -Dnil=nil -std=c++11 -I{openmp_include} -I{numpy_include}"
+            'CXXFLAGS',
+            '') + f" -Dnil=nil -std=c++11 -I{openmp_include} -I{numpy_include}"
 
         command = sh.Command("cmake")
-        shprint(
-            command,
-            "-Bbuild",
-            "-S.",
-            "-DFAISS_ENABLE_GPU=OFF",
-            "-DBUILD_SHARED_LIBS=OFF",
-            "-DCMAKE_SYSTEM_NAME=iOS",
-            f"-DCMAKE_OSX_ARCHITECTURES={arch}",
-            f"-DCMAKE_OSX_SYSROOT={arch.sysroot}",
-            "-DCMAKE_CXX_COMPILER=/usr/bin/clang++",
-            "-DCMAKE_CXX_COMPILER_ID=AppleClang",
-            "-DOpenMP_CXX_FLAGS=-Xclang -fopenmp",
-            "-DOpenMP_CXX_LIB_NAMES=omp",
-            f"-DOpenMP_omp_LIBRARY={openmp_lib}",
-            "-DBLA_VENDOR=Apple",
-            f"-DPython_EXECUTABLE={self.ctx.hostpython}",
-            f"-DPython_LIBRARY={python_lib}",
-            f"-DPython_INCLUDE_DIR={python_include}",
-            f"-DPython_NumPy_INCLUDE_DIR={numpy_include_dir}",
-            _env=build_env)
+        shprint(command,
+                "-Bbuild",
+                "-S.",
+                "-DFAISS_ENABLE_GPU=OFF",
+                "-DBUILD_SHARED_LIBS=OFF",
+                "-DCMAKE_SYSTEM_NAME=iOS",
+                "-DCMAKE_SYSTEM_NAME=Darwin",
+                f"-DCMAKE_OSX_ARCHITECTURES={arch}",
+                f"-DCMAKE_OSX_SYSROOT={arch.sysroot}",
+                "-DCMAKE_CXX_COMPILER=/usr/bin/clang++",
+                "-DCMAKE_CXX_COMPILER_ID=AppleClang",
+                "-DOpenMP_CXX_FLAGS=-Xclang -fopenmp",
+                "-DOpenMP_CXX_LIB_NAMES=omp",
+                f"-DOpenMP_omp_LIBRARY={openmp_lib}",
+                "-DBLA_VENDOR=Apple",
+                f"-DPython_EXECUTABLE={self.ctx.hostpython}",
+                f"-DPython_LIBRARY={python_lib}",
+                f"-DPython_INCLUDE_DIR={python_include}",
+                f"-DPython_NumPy_INCLUDE_DIR={numpy_include_dir}",
+                _env=build_env)
 
         command = sh.Command("make")
         shprint(command, "-C", "build", "-j", "faiss", _env=build_env)
