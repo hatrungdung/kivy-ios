@@ -10,7 +10,7 @@ class OpenMPRecipe(Recipe):
     url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-{version}/openmp-{version}.src.tar.xz"
     include_per_arch = True
     libraries = [
-        "build/runtime/src/libomp.dylib"
+        "build/runtime/src/libomp.a"
     ]
 
     def build_arch(self, arch):
@@ -25,7 +25,7 @@ class OpenMPRecipe(Recipe):
         with cd("build"):
             shprint(command,
                     "..",
-                    "-DBUILD_SHARED_LIBS=OFF",
+                    "-DLIBOMP_ENABLE_SHARED=OFF",
                     "-DCMAKE_SYSTEM_NAME=iOS",
                     "-DCMAKE_SYSTEM_NAME=Darwin",
                     f"-DCMAKE_OSX_ARCHITECTURES={arch}",

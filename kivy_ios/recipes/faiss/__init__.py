@@ -22,7 +22,7 @@ class FaissRecipe(PythonRecipe):
 
     def build_arch(self, arch):
         openmp_dir = '/Users/robertsmith/ML/kivy-tensorflow-helloworld/.buildozer/ios/platform/kivy-ios/build/openmp/arm64/openmp-12.0.1.src/build/runtime/src'
-        openmp_lib = join(openmp_dir, 'libomp.dylib')
+        openmp_lib = join(openmp_dir, 'libomp.a')
 
         python_lib = join(self.ctx.build_dir, 'python3', arch.arch,
                           f'Python-{self.ctx.hostpython_recipe.version}',
@@ -72,7 +72,7 @@ class FaissRecipe(PythonRecipe):
     def install(self):
         arch = list(self.filtered_archs)[0]
         build_dir = self.get_build_dir(arch.arch)
-        os.chdir(join(build_dir, "build/faiss/python"))
+        os.chdir(join(build_dir, "build", "faiss", "python"))
         hostpython = sh.Command(self.ctx.hostpython)
         build_env = arch.get_env()
         dest_dir = join(self.ctx.dist_dir, "root", "python3")
