@@ -14,23 +14,15 @@ import os
 class FaissRecipe(PythonRecipe):
     version = "v1.7.1"
     url = "https://github.com/facebookresearch/faiss/archive/refs/tags/{version}.tar.gz"
-    depends = ["python", "numpy"]
+    depends = ["python", "numpy", "openmp"]
     include_per_arch = True
     libraries = [
         "build/faiss/libfaiss.a",
     ]
 
     def build_arch(self, arch):
-        # download OpenMP library built for arm64 and x86_64
-        openmp_url = 'https://mac.r-project.org/openmp/openmp-96efe90-darwin20-Release.tar.gz'
-        openmp_dir = join(self.ctx.build_dir, 'faiss')
-        openmp_fn = join(openmp_dir, 'openmp-96efe90-darwin20-Release.tar.gz')
-        if not exists(openmp_fn):
-            self.download_file(openmp_url, openmp_fn)
-        if not exists(join(openmp_dir, 'usr')):
-            self.extract_file(openmp_fn, openmp_dir)
-        openmp_lib = join(openmp_dir, 'usr', 'local', 'lib', 'libomp.dylib')
-        openmp_include = join(openmp_dir, 'usr', 'local', 'include')
+        openmp_dir = '/Users/robertsmith/ML/kivy-tensorflow-helloworld/.buildozer/ios/platform/kivy-ios/build/openmp/arm64/openmp-12.0.1.src/build/runtime/src'
+        openmp_lib = join(openmp_dir, 'libomp.dylib')
 
         python_lib = join(self.ctx.build_dir, 'python3', arch.arch,
                           f'Python-{self.ctx.hostpython_recipe.version}',
@@ -40,14 +32,14 @@ class FaissRecipe(PythonRecipe):
         numpy_dir = join(self.ctx.build_dir, 'numpy', arch.arch,
                          'numpy-1.20.2')  ###
         numpy_include = join(numpy_dir, 'build',
-                             f'src.macosx-10.15-{arch.arch}-3.9', 'numpy',
+                             f'src.macosx-10.15-x86_64-3.9', 'numpy',
                              'core', 'include', 'numpy')
         numpy_include_dir = join(numpy_dir, 'numpy', 'core', 'include')
 
         build_env = arch.get_env()
         build_env['CXXFLAGS'] = build_env.get(
             'CXXFLAGS',
-            '') + f" -Dnil=nil -std=c++11 -I{openmp_include} -I{numpy_include}"
+            '') + f" -Dnil=nil -std=c++11 -I{openmp_dir} -I{numpy_include}"
 
         command = sh.Command("cmake")
         shprint(command,
@@ -74,6 +66,7 @@ class FaissRecipe(PythonRecipe):
         command = sh.Command("make")
         shprint(command, "-C", "build", "-j", "faiss", _env=build_env)
         shprint(command, "-C", "build", "-j", "swigfaiss", _env=build_env)
+
         super(FaissRecipe, self).build_arch(arch)
 
     def install(self):

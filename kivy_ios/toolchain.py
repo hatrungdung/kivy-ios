@@ -493,7 +493,7 @@ class Recipe:
         if not filename:
             return
         logger.info("Extract {} into {}".format(filename, cwd))
-        if filename.endswith((".tgz", ".tar.gz")):
+        if filename.endswith((".tgz", ".tar.gz", ".tar.xz")):
             if self.ctx.use_pigz:
                 comp = '--use-compress-program={}'.format(self.ctx.use_pigz)
             else:
@@ -516,7 +516,7 @@ class Recipe:
             raise Exception()
 
     def get_archive_rootdir(self, filename):
-        if filename.endswith((".tgz", ".tar.gz", ".tbz2", ".tar.bz2")):
+        if filename.endswith((".tgz", ".tar.gz", "tar.xz", ".tbz2", ".tar.bz2")):
             try:
                 archive = tarfile.open(filename)
             except tarfile.ReadError:
