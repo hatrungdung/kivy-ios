@@ -1,6 +1,7 @@
 # TODO
 # hardcoded version numbers?
-# fix swigfaiss build
+# build_env function
+# avx2?
 # ....
 
 # brew install swig
@@ -17,7 +18,8 @@ class FaissRecipe(PythonRecipe):
     depends = ["python", "numpy", "openmp"]
     include_per_arch = True
     libraries = [
-        "_build/faiss/libfaiss.a", ####
+        join("_libfaiss_stage", "lib", "libfaiss.a"),
+#        join("_libfaiss_stage", "lib", "libfaiss_avx2.a"),
     ]
 
     def build_arch(self, arch):
@@ -45,11 +47,13 @@ class FaissRecipe(PythonRecipe):
         shprint(command,
                 "-B_build",
                 "-S.",
+#                "-DFAISS_OPT_LEVEL=avx2",
                 "-DFAISS_ENABLE_GPU=OFF",
                 "-DBUILD_SHARED_LIBS=OFF",
                 "-DCMAKE_SYSTEM_NAME=iOS",
                 "-DCMAKE_SYSTEM_NAME=Darwin",
-                "-DMAKER_BUILD_TYPE=Release",
+                "-DMAKE_BUILD_TYPE=Release",
+                "-DCMAKE_INSTALL_LIBDIR=lib",
                 f"-DCMAKE_OSX_ARCHITECTURES={arch}",
                 f"-DCMAKE_OSX_SYSROOT={arch.sysroot}",
                 "-DCMAKE_CXX_COMPILER=/usr/bin/clang++",
@@ -61,20 +65,32 @@ class FaissRecipe(PythonRecipe):
                 f"-DFAISS_ENABLE_PYTHON=OFF",
                 _env=build_env)
         command = sh.Command("make")
-        shprint(command, "-C", "_build", "-j", "faiss", _env=build_env)
+        shprint(command,
+                "-C",
+                "_build",
+                "-j",
+                "faiss",
+#                "faiss_avx2",
+                _env=build_env)
         command = sh.Command("cmake")
-        shprint(command, "--install", "_build", "--prefix", "_libfaiss_stage", _env=build_env)
+        shprint(command,
+                "--install",
+                "_build",
+                "--prefix",
+                "_libfaiss_stage",
+                _env=build_env)
 
         command = sh.Command("cmake")
         shprint(command,
                 "-B_build_python",
                 "-Sfaiss/python",
                 "-Dfaiss_ROOT=_libfaiss_stage",
+#                "-DFAISS_OPT_LEVEL=avx2",
                 "-DFAISS_ENABLE_GPU=OFF",
                 "-DBUILD_SHARED_LIBS=OFF",
                 "-DCMAKE_SYSTEM_NAME=iOS",
                 "-DCMAKE_SYSTEM_NAME=Darwin",
-                "-DMAKER_BUILD_TYPE=Release",
+                "-DMAKE_BUILD_TYPE=Release",
                 f"-DCMAKE_OSX_ARCHITECTURES={arch}",
                 f"-DCMAKE_OSX_SYSROOT={arch.sysroot}",
                 "-DCMAKE_CXX_COMPILER=/usr/bin/clang++",
@@ -89,7 +105,13 @@ class FaissRecipe(PythonRecipe):
                 f"-DPython_NumPy_INCLUDE_DIR={numpy_include_dir}",
                 _env=build_env)
         command = sh.Command("make")
-        shprint(command, "-C", "_build_python", "-j", "swigfaiss", _env=build_env)
+        shprint(command,
+                "-C",
+                "_build_python",
+                "-j",
+                "swigfaiss",
+#                "swigfaiss_avx2",
+                _env=build_env)
 
         super(FaissRecipe, self).build_arch(arch)
 
