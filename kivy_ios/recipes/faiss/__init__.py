@@ -55,7 +55,7 @@ class FaissRecipe(PythonRecipe):
             "-DBUILD_SHARED_LIBS=OFF",
             "-DCMAKE_SYSTEM_NAME=iOS",
             "-DCMAKE_SYSTEM_NAME=Darwin",
-            "-DCMAKE_BUILD_TYPE=Release",
+            "-DCMAKE_BUILD_TYPE=Debug", ###
             "-DCMAKE_INSTALL_LIBDIR=lib",
             f"-DCMAKE_OSX_ARCHITECTURES={arch}",
             f"-DCMAKE_OSX_SYSROOT={arch.sysroot}",
@@ -101,7 +101,7 @@ class FaissRecipe(PythonRecipe):
             "-DBUILD_SHARED_LIBS=OFF",
             "-DCMAKE_SYSTEM_NAME=iOS",
             "-DCMAKE_SYSTEM_NAME=Darwin",
-            "-DCMAKE_BUILD_TYPE=Release",
+            "-DCMAKE_BUILD_TYPE=Debug", ###
             f"-DCMAKE_OSX_ARCHITECTURES={arch}",
             f"-DCMAKE_OSX_SYSROOT={arch.sysroot}",
             "-DCMAKE_CXX_COMPILER=/usr/bin/clang++",
