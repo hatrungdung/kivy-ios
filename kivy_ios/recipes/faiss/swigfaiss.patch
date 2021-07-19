@@ -11,7 +11,7 @@ iff -Naur faiss-1.7.1/_build_python/swigfaiss.py faiss-1.7.1/_build_python/swigf
 -    import _swigfaiss
 +import os
 +import ctypes
-+dll = ctypes.PyDLL(os.join(__path__[0], '_swigfaiss.so'))
++dll = ctypes.PyDLL(os.path.join(__path__[0], '_swigfaiss.so'))
 +init = dll.PyInit__swigfaiss
 +init.restype = ctypes.py_object
 +_swigfaiss = init()
