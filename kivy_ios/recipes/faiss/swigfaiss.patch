@@ -1,0 +1,20 @@
+iff -Naur faiss-1.7.1/_build_python/swigfaiss.py faiss-1.7.1/_build_python/swigfaiss-patched.py
+--- faiss-1.7.1/_build_python/swigfaiss.py      2021-07-19 13:55:09.000000000 +0100
++++ faiss-1.7.1/_build_python/swigfaiss-patched.py      2021-07-19 13:55:33.000000000 +0100
+@@ -9,10 +9,12 @@
+     raise RuntimeError("Python 2.7 or later required")
+ 
+ # Import the low-level C/C++ module
+-if __package__ or "." in __name__:
+-    from . import _swigfaiss
+-else:
+-    import _swigfaiss
++import os
++import ctypes
++dll = ctypes.PyDLL(os.join(__path__[0], '_swigfaiss.so'))
++init = dll.PyInit__swigfaiss
++init.restype = ctypes.py_object
++_swigfaiss = init()
+ 
+ try:
+     import builtins as __builtin__

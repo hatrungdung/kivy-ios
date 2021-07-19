@@ -43,7 +43,7 @@ class FaissRecipe(PythonRecipe):
             'CXXFLAGS',
             '') + f" -Dnil=nil -std=c++11 -I{openmp_dir} -I{numpy_include}"
 
-        dest_dir = join(self.ctx.dist_dir, "root", "python")
+        dest_dir = join(self.ctx.dist_dir, "root", "python3")
 
         command = sh.Command("cmake")
         shprint(
@@ -116,9 +116,14 @@ class FaissRecipe(PythonRecipe):
             f"-DPython_NumPy_INCLUDE_DIR={numpy_include_dir}",
             _env=build_env)
         command = sh.Command("make")
-
-        # for some reason have to do this to import _swigfaiss dynamic library
-        self.apply_patch('loader.patch')
+        shprint(
+            command,
+            "-C",
+            "_build_python",
+            "-j",
+            "swigfaiss",
+            # "swigfaiss_avx2",
+            _env=build_env)
 
         shprint(
             command,
@@ -129,6 +134,9 @@ class FaissRecipe(PythonRecipe):
             # "swigfaiss_avx2",
             _env=build_env)
 
+        # for some reason have to do this to import _swigfaiss dynamic library
+        self.apply_patch('swigfaiss.patch')
+
         super(FaissRecipe, self).build_arch(arch)
 
     def install(self):
@@ -137,7 +145,7 @@ class FaissRecipe(PythonRecipe):
         os.chdir(build_dir)
         hostpython = sh.Command(self.ctx.hostpython)
         build_env = arch.get_env()
-        dest_dir = join(self.ctx.dist_dir, "root", "python")
+        dest_dir = join(self.ctx.dist_dir, "root", "python3")
         build_env['PYTHONPATH'] = self.ctx.site_packages_dir
         shprint(hostpython,
                 "setup.py",
