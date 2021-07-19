@@ -116,6 +116,10 @@ class FaissRecipe(PythonRecipe):
             f"-DPython_NumPy_INCLUDE_DIR={numpy_include_dir}",
             _env=build_env)
         command = sh.Command("make")
+
+        # for some reason have to do this to import _swigfaiss dynamic library
+        self.apply_patch('loader.patch')
+
         shprint(
             command,
             "-C",
