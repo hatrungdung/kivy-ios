@@ -20,7 +20,7 @@ class FaissRecipe(PythonRecipe):
     include_per_arch = True
     libraries = [
         join("_libfaiss_stage", "lib", "libfaiss.a"),
-        join("_build_python", "_swigfaiss.dylib"),
+        join("_build_python", "_swigfaiss.so"),
         # join("_libfaiss_stage", "lib", "libfaiss_avx2.a"),
     ]
 
