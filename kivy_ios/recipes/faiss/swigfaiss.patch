@@ -41,9 +41,9 @@ diff -Naur faiss-1.7.1/_build_python/setup.py faiss-1.7.1/_build_python/setup-pa
  
  )
 
- diff -Naur faiss-1.7.1/faiss/python/CMakeLists.txt faiss-1.7.1/faiss/python/CMakeLists-patched.txt
---- faiss-1.7.1/faiss/python/CMakeLists.txt     2021-05-27 18:49:37.000000000 +0100
-+++ faiss-1.7.1/faiss/python/CMakeLists-patched.txt     2021-07-22 13:36:27.000000000 +0100
+diff -Naur faiss-1.7.1/faiss/python/CMakeLists.txt faiss-1.7.1/faiss/python/CMakeLists-patched.txt
+--- faiss-1.7.1/faiss/python/CMakeLists.txt     2021-07-22 13:49:08.000000000 +0100
++++ faiss-1.7.1/faiss/python/CMakeLists-patched.txt     2021-07-22 13:49:49.000000000 +0100
 @@ -64,7 +64,7 @@
  endif()
  
@@ -62,3 +62,16 @@ diff -Naur faiss-1.7.1/_build_python/setup.py faiss-1.7.1/_build_python/setup-pa
    LANGUAGE python
    SOURCES swigfaiss_avx2.swig
  )
+@@ -80,12 +80,6 @@
+   set_target_properties(swigfaiss_avx2 PROPERTIES EXCLUDE_FROM_ALL TRUE)
+ endif()
+ 
+-if(NOT WIN32)
+-  # NOTE: Python does not recognize the dylib extension.
+-  set_target_properties(swigfaiss PROPERTIES SUFFIX .so)
+-  set_target_properties(swigfaiss_avx2 PROPERTIES SUFFIX .so)
+-endif()
+-
+ if(FAISS_ENABLE_GPU)
+   find_package(CUDAToolkit REQUIRED)
+   target_link_libraries(swigfaiss PRIVATE CUDA::cudart)
