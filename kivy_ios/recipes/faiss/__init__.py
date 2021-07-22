@@ -132,8 +132,6 @@ class FaissRecipe(PythonRecipe):
 
         # for some reason have to do this to import _swigfaiss dynamic library
         self.apply_patch('swigfaiss.patch')
-        shutil.copyfile(join("_build_python", "_swigfaiss.so"),
-                        join("_build_python", "_swigfaiss.dylib"))
 
         super(FaissRecipe, self).build_arch(arch)
 
@@ -153,9 +151,6 @@ class FaissRecipe(PythonRecipe):
                 "--prefix",
                 dest_dir,
                 _env=build_env)
-
-    def reduce_python_package(self):
-        os.remove(join(dest_dir, "faiss", "_swigfaiss.so"))
 
 
 recipe = FaissRecipe()
