@@ -152,7 +152,6 @@ class FaissRecipe(PythonRecipe):
                 dest_dir,
                 _env=build_env)
 
-    def reduce_python_package(self):
         os.rename(
             join(self.ctx.dist_dir, "lib", "_swigfaiss.so"),
             join(self.ctx.dist_dir, "root", "python3", "lib", "python3.9",
