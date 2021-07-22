@@ -8,6 +8,7 @@
 
 from kivy_ios.toolchain import PythonRecipe, shprint
 from os.path import join, exists
+import shutil
 import sh
 import os
 
@@ -19,6 +20,7 @@ class FaissRecipe(PythonRecipe):
     include_per_arch = True
     libraries = [
         join("_libfaiss_stage", "lib", "libfaiss.a"),
+        join("_build_python", "_swigfaiss.dylib"),
         # join("_libfaiss_stage", "lib", "libfaiss_avx2.a"),
     ]
 
@@ -55,7 +57,7 @@ class FaissRecipe(PythonRecipe):
             "-DBUILD_SHARED_LIBS=OFF",
             "-DCMAKE_SYSTEM_NAME=iOS",
             "-DCMAKE_SYSTEM_NAME=Darwin",
-            "-DCMAKE_BUILD_TYPE=Debug", ###
+            "-DCMAKE_BUILD_TYPE=Debug",  ###
             "-DCMAKE_INSTALL_LIBDIR=lib",
             f"-DCMAKE_OSX_ARCHITECTURES={arch}",
             f"-DCMAKE_OSX_SYSROOT={arch.sysroot}",
@@ -81,12 +83,6 @@ class FaissRecipe(PythonRecipe):
                 "--install",
                 "_build",
                 "--prefix",
-                dest_dir,
-                _env=build_env)
-        shprint(command,
-                "--install",
-                "_build",
-                "--prefix",
                 "_libfaiss_stage",
                 _env=build_env)
 
@@ -101,7 +97,7 @@ class FaissRecipe(PythonRecipe):
             "-DBUILD_SHARED_LIBS=OFF",
             "-DCMAKE_SYSTEM_NAME=iOS",
             "-DCMAKE_SYSTEM_NAME=Darwin",
-            "-DCMAKE_BUILD_TYPE=Debug", ###
+            "-DCMAKE_BUILD_TYPE=Debug",  ###
             f"-DCMAKE_OSX_ARCHITECTURES={arch}",
             f"-DCMAKE_OSX_SYSROOT={arch.sysroot}",
             "-DCMAKE_CXX_COMPILER=/usr/bin/clang++",
@@ -136,6 +132,8 @@ class FaissRecipe(PythonRecipe):
 
         # for some reason have to do this to import _swigfaiss dynamic library
         self.apply_patch('swigfaiss.patch')
+        shutil.copyfile(join("_build_python", "_swigfaiss.so"),
+                        join("_build_python", "_swigfaiss.dylib"))
 
         super(FaissRecipe, self).build_arch(arch)
 
@@ -155,6 +153,9 @@ class FaissRecipe(PythonRecipe):
                 "--prefix",
                 dest_dir,
                 _env=build_env)
+
+    def reduce_python_package(self):
+        os.remove(join(dest_dir, "faiss", "_swigfaiss.so"))
 
 
 recipe = FaissRecipe()
