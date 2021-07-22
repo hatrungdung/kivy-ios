@@ -20,9 +20,6 @@ diff -Naur faiss-1.7.1/_build_python/swigfaiss.py faiss-1.7.1/_build_python/swig
      import builtins as __builtin__
      
 diff -Naur faiss-1.7.1/_build_python/setup.py faiss-1.7.1/_build_python/setup-patched.py
-
---- faiss-1.7.1/_build_python/setup.py  2021-07-22 10:47:17.000000000 +0100
-+++ faiss-1.7.1/_build_python/setup-patched.py  2021-07-22 10:55:44.000000000 +0100
 @@ -16,7 +16,7 @@
  shutil.copyfile("__init__.py", "faiss/__init__.py")
  shutil.copyfile("loader.py", "faiss/loader.py")
@@ -32,3 +29,12 @@ diff -Naur faiss-1.7.1/_build_python/setup.py faiss-1.7.1/_build_python/setup-pa
  prefix = "Release/" * (platform.system() == 'Windows')
  
  swigfaiss_generic_lib = f"{prefix}_swigfaiss{ext}"
+@@ -61,7 +61,7 @@
+     install_requires=['numpy'],
+     packages=['faiss', 'faiss.contrib'],
+     package_data={
+-        'faiss': ['*.so', '*.pyd'],
++        'faiss': ['*.so', '*.pyd', '*.dylib'],
+     },
+ 
+ )
