@@ -11,7 +11,7 @@ diff -Naur faiss-1.7.1/_build_python/swigfaiss.py faiss-1.7.1/_build_python/swig
 -    import _swigfaiss
 +import os
 +import ctypes
-+dll = ctypes.PyDLL('../lib/_swigfaiss.dylib')
++dll = ctypes.PyDLL('../lib/_swigfaiss.so')
 +init = dll.PyInit__swigfaiss
 +init.restype = ctypes.py_object
 +_swigfaiss = init()
